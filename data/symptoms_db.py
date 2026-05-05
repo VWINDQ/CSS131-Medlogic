@@ -1,109 +1,123 @@
-"""
-data/symptoms_db.py — Disease-Symptom Knowledge Base
-=====================================================
-All facts are declared here as pure data — no logic lives in this file.
-The Kanren `Relation` objects act as in-memory logic databases.
-
-LOGIC PROGRAMMING CONCEPT: Facts
-    A "fact" is an unconditionally true statement.
-    E.g., facts(has_symptom, ("flu", "fever")) means:
-          "It is a fact that flu has the symptom fever."
-"""
-
 from kanren import Relation, facts
 
+# Relations Opject ซึ่งในเชิง Logic Programming ถือเป็นการกำหนด Predicate เพื่อใช้เป็นโครงสร้างหลักในการเก็บ facts
 # ── Relations (think: database tables) ─────────────────────────────────────
-has_symptom      = Relation()   # (disease, symptom)
-risk_factor      = Relation()   # (disease, risk_factor)
-disease_category = Relation()   # (disease, category)
+has_symptom      = Relation()   # (disease, symptom) <- ใช้ประกาศข้อเท็จจริงว่า โรค X มีอาการ Y
+risk_factor      = Relation()   # (disease, risk_factor) <- ใช้ประกาศข้อเท็จจริงว่า โรค X มีปัจจัยเสี่ยง Y
+disease_category = Relation()   # (disease, category) <- ใช้ประกาศข้อเท็จจริงว่า โรค X อยู่ในหมวดหมู่ Y
 
-# ── Disease → Symptom Facts ─────────────────────────────────────────────────
+# ──  has_symptom - โรค x อาการ y ─────
 _SYMPTOM_FACTS = [
-    # ── Respiratory ──────────────────────────────────────────────────────────
-    ("influenza",           "fever"),
-    ("influenza",           "cough"),
-    ("influenza",           "body_aches"),
-    ("influenza",           "fatigue"),
-    ("influenza",           "headache"),
+    # ── ระบบทางเดินหายใจ ───
+    # -- ไข้หวัดใหญ่ --
+    ("influenza",           "fever"), # ไข้
+    ("influenza",           "cough"), # ไอ
+    ("influenza",           "body_aches"), # ปวดเมื่อยตามตัว
+    ("influenza",           "fatigue"), # อ่อนเพลีย
+    ("influenza",           "headache"), # ปวดหัว
+    # -- ไข้ --
+    ("common_cold",         "runny_nose"), # น้ำมูกไหล
+    ("common_cold",         "sore_throat"), # เจ็บคอ
+    ("common_cold",         "sneezing"), # จาม
+    ("common_cold",         "mild_cough"), # ไอเล็กน้อย
+    ("common_cold",         "congestion"), # คัดจมูก
+    # -- covid19 --
+    ("covid19",             "fever"), # ไข้
+    ("covid19",             "cough"), # ไอ
+    ("covid19",             "loss_of_taste"), # สูญเสียการรับรส
+    ("covid19",             "loss_of_smell"), # สูญเสียการดม
+    ("covid19",             "fatigue"), # อ่อนเพลีย
+    ("covid19",             "shortness_of_breath"), # หายใจลำบาก
+    # -- ปอดบวม --
+    ("pneumonia",           "high_fever"), # ไข้สูง
+    ("pneumonia",           "chest_pain"), # เจ็บหน้าอก
+    ("pneumonia",           "productive_cough"), # ไอมีเสมหะ
+    ("pneumonia",           "shortness_of_breath"), # หายใจลำบาก
+    ("pneumonia",           "fatigue"), # อ่อนเพลีย
 
-    ("common_cold",         "runny_nose"),
-    ("common_cold",         "sore_throat"),
-    ("common_cold",         "sneezing"),
-    ("common_cold",         "mild_cough"),
-    ("common_cold",         "congestion"),
+    # ── ระบบทางเดินอาหาร ──
+    # -- อาหารเป็นพิษ --
+    ("gastroenteritis",     "nausea"), # คลืืนไส้
+    ("gastroenteritis",     "vomiting"), # อาเจียน
+    ("gastroenteritis",     "diarrhea"), # ท้องเสีย
+    ("gastroenteritis",     "stomach_cramps"), # ปวดท้องเกร็ง
+    ("gastroenteritis",     "fatigue"), # เหนื่อยล้า
+    # -- ไส้ติ่งอักเสบ --
+    ("appendicitis",        "severe_abdominal_pain"), # ปวดท้องรุนแรง
+    ("appendicitis",        "nausea"), # คลื่นไส้
+    ("appendicitis",        "fever"), # ไข้
+    ("appendicitis",        "loss_of_appetite"), # เบื่ออาหาร
 
-    ("covid19",             "fever"),
-    ("covid19",             "cough"),
-    ("covid19",             "loss_of_taste"),
-    ("covid19",             "loss_of_smell"),
-    ("covid19",             "fatigue"),
-    ("covid19",             "shortness_of_breath"),
-
-    ("pneumonia",           "high_fever"),
-    ("pneumonia",           "chest_pain"),
-    ("pneumonia",           "productive_cough"),
-    ("pneumonia",           "shortness_of_breath"),
-    ("pneumonia",           "fatigue"),
-
-    # ── Gastrointestinal ─────────────────────────────────────────────────────
-    ("gastroenteritis",     "nausea"),
-    ("gastroenteritis",     "vomiting"),
-    ("gastroenteritis",     "diarrhea"),
-    ("gastroenteritis",     "stomach_cramps"),
-    ("gastroenteritis",     "fatigue"),
-
-    ("appendicitis",        "severe_abdominal_pain"),
-    ("appendicitis",        "nausea"),
-    ("appendicitis",        "fever"),
-    ("appendicitis",        "loss_of_appetite"),
-
-    # ── General ──────────────────────────────────────────────────────────────
-    ("dehydration",         "dizziness"),
-    ("dehydration",         "dry_mouth"),
-    ("dehydration",         "fatigue"),
-    ("dehydration",         "headache"),
-
-    ("anemia",              "fatigue"),
-    ("anemia",              "pallor"),
-    ("anemia",              "shortness_of_breath"),
-    ("anemia",              "dizziness"),
+    # -- ระบบทั่วไป --
+    # -- ภาวะขาดน้ำ --
+    ("dehydration",         "dizziness"), # เวียนศีรษะ
+    ("dehydration",         "dry_mouth"), # ปากแห้ง
+    ("dehydration",         "fatigue"), # อ่อนเพลีย
+    ("dehydration",         "headache"), # ปวดหัว
+    # -- โลหิตจาง --
+    ("anemia",              "fatigue"), # อ่อนเพลีย
+    ("anemia",              "pallor"), # ซีด
+    ("anemia",              "shortness_of_breath"), # หายใจลำบาก
+    ("anemia",              "dizziness"), # เวียนศีรษะ
 ]
 
-# ── Risk Factor Facts ────────────────────────────────────────────────────────
+# ── Risk - โรค x ปัจจัยเสี่ยง y ──
 _RISK_FACTS = [
-    ("influenza",           "elderly"),
-    ("influenza",           "immunocompromised"),
-    ("pneumonia",           "elderly"),
-    ("pneumonia",           "smoker"),
-    ("covid19",             "elderly"),
-    ("covid19",             "obesity"),
-    ("anemia",              "vegetarian"),
-    ("anemia",              "female"),
-    ("dehydration",         "athlete"),
-    ("gastroenteritis",     "traveler"),
+    # -- ไข้หวัดใหญ่ --
+    ("influenza",           "elderly"), # เป็น ผู้สูงอายุ
+    ("influenza",           "immunocompromised"), # มีภูมิคุ้มกันบกพร่อง
+    # -- ปอดบวม --
+    ("pneumonia",           "elderly"), # เป็นผู้สูงอายุ
+    ("pneumonia",           "smoker"), # สูบบบุหรี่
+    # -- covid19 --
+    ("covid19",             "elderly"), # เป็นผู้สูงอายุ
+    ("covid19",             "obesity"), # ภาวะอ้วน
+    # -- โลหิตจาง --
+    ("anemia",              "vegetarian"), # มังสวิรัติ
+    ("anemia",              "female"), # เพศหญิง 
+    # -- ภาวะขาดน้ำ --
+    ("dehydration",         "athlete"), # นักกีฬา
+    # -- อาหารเป็นพิษ --
+    ("gastroenteritis",     "traveler"), # นักท่องเที่ยว (เสี่ยงจากการกินอาหารที่ไม่สะอาด)
 ]
 
-# ── Category Facts ───────────────────────────────────────────────────────────
+# ── Disease-Category - โรค x หมวดหมู่ y ──
 _CATEGORY_FACTS = [
-    ("influenza",           "respiratory"),
-    ("common_cold",         "respiratory"),
-    ("covid19",             "respiratory"),
-    ("pneumonia",           "respiratory"),
-    ("gastroenteritis",     "gastrointestinal"),
-    ("appendicitis",        "gastrointestinal"),
-    ("dehydration",         "general"),
-    ("anemia",              "general"),
+    # -- ไข้หวัดใหญ่ --
+    ("influenza",           "respiratory"), # โรคระบบทางเดินหายใจ
+    # -- ไข้ --
+    ("common_cold",         "respiratory"), # โรคระบบทางเดินหายใจ
+    # -- covid19 --
+    ("covid19",             "respiratory"), # โรคระบบทางเดินหายใจ
+    # -- ปอดบวม --
+    ("pneumonia",           "respiratory"), # โรคระบบทางเดินหายใจ
+    # -- อาหารเป็นพิษ --
+    ("gastroenteritis",     "gastrointestinal"), # ระบบทางเดินอาหาร
+    # -- ไส้ติ่งอักเสบ --
+    ("appendicitis",        "gastrointestinal"), # ระบบทางเดินอาหาร
+    # -- ภาวะขาดน้ำ --
+    ("dehydration",         "general"), # ระบบทั่วไป
+    # -- โลหิตจาง --
+    ("anemia",              "general"), # ระบบทั่วไป
 ]
 
 # ── Human-Readable Descriptions ─────────────────────────────────────────────
 DISEASE_DESCRIPTIONS: dict[str, str] = {
+    # -- ไข้หวัดใหญ่ --
     "influenza":        "A contagious viral infection affecting the respiratory tract.",
+    # -- ไข้ --
     "common_cold":      "A mild upper-respiratory infection caused by various viruses.",
+    # -- covid19 --
     "covid19":          "An infectious disease caused by the SARS-CoV-2 coronavirus.",
+    # -- ปอดบวม --
     "pneumonia":        "Infection inflaming air sacs in one or both lungs.",
+    # -- อาหารเป็นพิษ --
     "gastroenteritis":  "Inflammation of the stomach and intestines (stomach flu).",
+    # -- ไส้ติ่งอักเสบ --   
     "appendicitis":     "Inflammation of the appendix — requires urgent medical care.",
+    # -- ภาวะขาดน้ำ --
     "dehydration":      "Occurs when fluid loss exceeds fluid intake.",
+    # -- โลหิตจาง --
     "anemia":           "Insufficient healthy red blood cells to carry adequate oxygen.",
 }
 
