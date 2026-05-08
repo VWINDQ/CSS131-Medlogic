@@ -59,6 +59,12 @@ _SYMPTOM_FACTS = [
     ("anemia",              "pallor"), # ซีด
     ("anemia",              "shortness_of_breath"), # หายใจลำบาก
     ("anemia",              "dizziness"), # เวียนศีรษะ
+    #-- ADHD --
+    ("adhd",                "inattention"), # ขาดสมาธิ
+    ("adhd",                "hyperactivity"), # อยู่ไม่นิ่ง/ซนผิดปกติ
+    ("adhd",                "impulsivity"),  # หุนหันพลันแล่น
+    ("adhd",                "restlessness"), # กระสับกระส่าย
+    ("adhd",                "difficulty_focusing"), # จดจ่อกับสิ่งใดสิ่งหนึ่งได้ยาก
 ]
 
 # ── Risk - โรค x ปัจจัยเสี่ยง y ──
@@ -79,6 +85,8 @@ _RISK_FACTS = [
     ("dehydration",         "athlete"), # นักกีฬา
     # -- อาหารเป็นพิษ --
     ("gastroenteritis",     "traveler"), # นักท่องเที่ยว (เสี่ยงจากการกินอาหารที่ไม่สะอาด)
+    # -- ADHD --
+    ("adhd",                "family_history"), # มีคนในครอบครัวเป็น
 ]
 
 # ── Disease-Category - โรค x หมวดหมู่ y ──
@@ -99,6 +107,8 @@ _CATEGORY_FACTS = [
     ("dehydration",         "general"), # ระบบทั่วไป
     # -- โลหิตจาง --
     ("anemia",              "general"), # ระบบทั่วไป
+    # --ADHD --
+    ("adhd",                "neurodevelopmental"), # กลุ่มโรคพัฒนาการทางระบบประสาท
 ]
 
 # ── Human-Readable Descriptions ─────────────────────────────────────────────
@@ -119,6 +129,8 @@ DISEASE_DESCRIPTIONS: dict[str, str] = {
     "dehydration":      "Occurs when fluid loss exceeds fluid intake.",
     # -- โลหิตจาง --
     "anemia":           "Insufficient healthy red blood cells to carry adequate oxygen.",
+    # -- ADHD --
+    "adhd":             "A neurodevelopmental disorder characterized by inattention, hyperactivity, and impulsivity.",
 }
 
 VALID_SYMPTOMS: list[str] = sorted({s for _, s in _SYMPTOM_FACTS})
