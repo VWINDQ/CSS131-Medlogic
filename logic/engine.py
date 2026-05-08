@@ -24,30 +24,16 @@ from data.symptoms_db import has_symptom, risk_factor, disease_category
 # ─────────────────────────────────────────────────────────────────────────────
 
 def diseases_with_symptom(symptom: str) -> tuple:
-    """
-    LOGIC QUERY: "What diseases have this symptom?"
-
-    disease = var()          → create a logic variable (unknown)
-    has_symptom(disease, symptom)  → goal: disease must be related to symptom
-    run(0, disease, goal)    → find ALL values of `disease` satisfying the goal
-                               (0 means "no limit")
-    """
     disease = var()
     return run(0, disease, has_symptom(disease, symptom))
 
 
 def symptoms_of_disease(disease_name: str) -> tuple:
-    """
-    LOGIC QUERY: "What symptoms does this disease have?"
-    The logic variable is now on the symptom side — same relation, reversed.
-    This shows BIDIRECTIONAL querying: one relation, two query directions.
-    """
     symptom = var()
     return run(0, symptom, has_symptom(disease_name, symptom))
 
 
 def diseases_in_category(category: str) -> tuple:
-    """LOGIC QUERY: "What diseases belong to this category?" """
     disease = var()
     return run(0, disease, disease_category(disease, category))
 
@@ -57,23 +43,6 @@ def diseases_in_category(category: str) -> tuple:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def diagnose_exact(symptoms: list[str]) -> tuple:
-    """
-    LOGIC QUERY: "What disease has ALL of these symptoms?"
-
-    This is CONJUNCTION — multiple goals all applied to the SAME variable.
-    Kanren finds values of `disease` that satisfy EVERY goal simultaneously.
-
-    Imperative equivalent (for comparison):
-        results = []
-        for disease in all_diseases:
-            if all(disease_has(disease, s) for s in symptoms):
-                results.append(disease)
-
-    Logic equivalent (what we write):
-        disease = var()
-        goals = [has_symptom(disease, s) for s in symptoms]
-        return run(0, disease, *goals)     ← Kanren does the searching
-    """
     if not symptoms:
         return ()
     disease = var()
@@ -86,22 +55,8 @@ def diagnose_exact(symptoms: list[str]) -> tuple:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def diagnose_scored(symptoms: list[str]) -> dict[str, dict]:
-    """
-    Ranked diagnosis using symptom overlap scoring.
-
-    Steps:
-        1. Find all diseases that have ANY of the given symptoms
-        2. For each candidate disease, compute a match score
-        3. Return sorted results with exact-match flag
-
-    Score formula:
-        coverage  = matched / total_disease_symptoms   (how "complete" is the match?)
-        relevance = matched / total_input_symptoms     (how "specific" to the input?)
-        score     = average(coverage, relevance)
-    """
     if not symptoms:
         return {}
-
     # Collect all candidate diseases (union of symptom lookups)
     candidates: set[str] = set()
     for s in symptoms:
@@ -137,10 +92,6 @@ def diagnose_scored(symptoms: list[str]) -> dict[str, dict]:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def applicable_risks(disease_name: str, patient_profile: list[str]) -> list[str]:
-    """
-    LOGIC QUERY + FILTER:
-    Find which known risk factors for this disease apply to the patient.
-    """
     risk = var()
     all_risks = run(0, risk, risk_factor(disease_name, risk))
     return [r for r in all_risks if r in patient_profile]
